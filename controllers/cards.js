@@ -1,12 +1,15 @@
 /*global  require,module */
 const Card = require("../models/card");
+const { checkError, FindError } = require("../utils/checkError");
 
 const getCards = (req, res) => {
   Card.find({})
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      return res.status(200).send({ data: card });
+    })
     .catch((err) => {
-      res.status(500).send({ message: "Произошла ошибка" });
-      console.log(`Ощибка ${err.message}`);
+      const { status, message } = checkError(err);
+      return res.status(status).send(message);
     });
 };
 
@@ -14,10 +17,15 @@ const delCardById = (req, res) => {
   const { cardId } = req.params;
 
   Card.findByIdAndRemove(cardId)
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        throw new FindError();
+      }
+      return res.status(200).send({ data: card });
+    })
     .catch((err) => {
-      res.status(500).send({ message: "Произошла ошибка" });
-      console.log(`Ощибка создания пользователя ${err.message}`);
+      const { status, message } = checkError(err);
+      return res.status(status).send(message);
     });
 };
 
@@ -27,12 +35,11 @@ const createCard = (req, res) => {
 
   Card.create({ name, link, owner })
     .then((card) => {
-      res.send({ data: card });
-      res.status(201);
+      return res.status(201).send({ data: card });
     })
     .catch((err) => {
-      res.status(500).send({ message: "Произошла ошибка" });
-      console.log(`Ощибка создания карточки ${err.message}`);
+      const { status, message } = checkError(err);
+      return res.status(status).send(message);
     });
 };
 
@@ -46,12 +53,14 @@ const likeCard = (req, res) => {
     { new: true }
   )
     .then((card) => {
-      res.send({ data: card });
-      res.status(201);
+      if (!card) {
+        throw new FindError();
+      }
+      return res.status(200).send({ data: card });
     })
     .catch((err) => {
-      res.status(500).send({ message: "Произошла ошибка" });
-      console.log(`Ощибка создания карточки ${err.message}`);
+      const { status, message } = checkError(err);
+      return res.status(status).send(message);
     });
 };
 
@@ -65,12 +74,14 @@ const dislikeCard = (req, res) => {
     { new: true }
   )
     .then((card) => {
-      res.send({ data: card });
-      res.status(201);
+      if (!card) {
+        throw new FindError();
+      }
+      return res.status(200).send({ data: card });
     })
     .catch((err) => {
-      res.status(500).send({ message: "Произошла ошибка" });
-      console.log(`Ощибка создания карточки ${err.message}`);
+      const { status, message } = checkError(err);
+      return res.status(status).send(message);
     });
 };
 
