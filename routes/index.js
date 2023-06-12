@@ -3,8 +3,6 @@ const router = require("express").Router();
 const userRoutes = require("./users");
 const cardRoutes = require("./cards");
 
-router.use("/users",userRoutes);
-
 //временно захардкодили авторизацию
 router.use((req, res, next) => {
   req.user = {
@@ -14,6 +12,7 @@ router.use((req, res, next) => {
   next();
 });
 
+router.use("/users",userRoutes);
 router.use("/cards",cardRoutes);
 
 module.exports = router;

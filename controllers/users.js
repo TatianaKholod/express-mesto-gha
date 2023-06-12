@@ -35,8 +35,27 @@ const createUser = (req, res) => {
     });
 };
 
+const updateUser = (req, res) => {
+  const newDataUser = req.body;
+  const userId = req.user._id;
+
+  User.findByIdAndUpdate(userId, newDataUser, {
+    new: true, // обработчик then получит на вход обновлённую запись
+    runValidators: true, // данные будут валидированы перед изменением
+    upsert: true, // если пользователь не найден, он будет создан
+  })
+    .then((user) => {
+      res.send({ data: user });
+      res.status(200);
+    })
+    .catch((err) => {
+      res.status(500).send({ message: "Произошла ошибка" });
+      console.log(`Ощибка обновления пользователя ${err.message}`);
+    });
+};
 module.exports = {
   getUsers,
   getUserById,
   createUser,
+  updateUser,
 };
