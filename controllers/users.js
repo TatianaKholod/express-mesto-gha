@@ -19,7 +19,6 @@ const getUserById = (req, res) => {
       return res.status(200).send(user);
     })
     .catch((err) => {
-      console.log(err.name);
       const { status, message } = checkError(err);
       return res.status(status).send(message);
     });

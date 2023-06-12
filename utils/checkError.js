@@ -25,9 +25,7 @@ const checkError = (err) => {
     // если несколько полей не прошли валидацию, то нужно вывести все ошибки
   }
   if (err.name === 'CastError') definiteErr.status = ERROR_CODE_BADREQ;
-  if (err.name === 'FindError') {
-    definiteErr.status = ERROR_CODE_NOTFOUND;
-  }
+  if (err.name === 'FindError') definiteErr.status = ERROR_CODE_NOTFOUND;
   return definiteErr;
 };
 
