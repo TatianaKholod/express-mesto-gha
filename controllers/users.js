@@ -1,17 +1,12 @@
-/*global  require,module */
-const User = require("../models/user");
-const {checkError, FindError} = require("../utils/checkError");
+const User = require('../models/user');
+const { checkError, FindError } = require('../utils/checkError');
 
-const getUsers = (req, res) => {
-  return User.find({})
-    .then((user) => {
-      return res.status(200).send(user);
-    })
-    .catch((err) => {
-      const { status, message } = checkError(err);
-      return res.status(status).send(message);
-    });
-};
+const getUsers = (req, res) => User.find({})
+  .then((user) => res.status(200).send(user))
+  .catch((err) => {
+    const { status, message } = checkError(err);
+    return res.status(status).send(message);
+  });
 
 const getUserById = (req, res) => {
   const { userId } = req.params;
@@ -33,9 +28,7 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   return User.create({ name, about, avatar })
-    .then((user) => {
-      return res.status(201).send(user);
-    })
+    .then((user) => res.status(201).send(user))
     .catch((err) => {
       const { status, message } = checkError(err);
       return res.status(status).send(message);
@@ -51,9 +44,7 @@ const updateUser = (req, res) => {
     runValidators: true, // данные будут валидированы перед изменением
     upsert: true, // если пользователь не найден, он будет создан
   })
-    .then((user) => {
-      return res.status(200).send(user);
-    })
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       const { status, message } = checkError(err);
       return res.status(status).send(message);
