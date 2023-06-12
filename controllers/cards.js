@@ -3,9 +3,9 @@ const Card = require("../models/card");
 const { checkError, FindError } = require("../utils/checkError");
 
 const getCards = (req, res) => {
-  Card.find({})
+  return Card.find({})
     .then((card) => {
-      return res.status(200).send({ data: card });
+      return res.status(200).send(card);
     })
     .catch((err) => {
       const { status, message } = checkError(err);
@@ -16,12 +16,12 @@ const getCards = (req, res) => {
 const delCardById = (req, res) => {
   const { cardId } = req.params;
 
-  Card.findByIdAndRemove(cardId)
+  return Card.findByIdAndRemove(cardId)
     .then((card) => {
       if (!card) {
         throw new FindError();
       }
-      return res.status(200).send({ data: card });
+      return res.status(200).send(card);
     })
     .catch((err) => {
       const { status, message } = checkError(err);
@@ -33,9 +33,9 @@ const createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
-  Card.create({ name, link, owner })
+  return Card.create({ name, link, owner })
     .then((card) => {
-      return res.status(201).send({ data: card });
+      return res.status(201).send(card);
     })
     .catch((err) => {
       const { status, message } = checkError(err);
@@ -47,7 +47,7 @@ const likeCard = (req, res) => {
   const userId = req.user._id;
   const cardId = req.params.cardId;
 
-  Card.findByIdAndUpdate(
+  return Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: userId } }, // добавить _id в массив, если его там нет
     { new: true }
@@ -56,7 +56,7 @@ const likeCard = (req, res) => {
       if (!card) {
         throw new FindError();
       }
-      return res.status(200).send({ data: card });
+      return res.status(200).send(card);
     })
     .catch((err) => {
       const { status, message } = checkError(err);
@@ -68,7 +68,7 @@ const dislikeCard = (req, res) => {
   const userId = req.user._id;
   const cardId = req.params.cardId;
 
-  Card.findByIdAndUpdate(
+  return Card.findByIdAndUpdate(
     cardId,
     { $pull: { likes: userId } }, // убрать _id из массива
     { new: true }
@@ -77,7 +77,7 @@ const dislikeCard = (req, res) => {
       if (!card) {
         throw new FindError();
       }
-      return res.status(200).send({ data: card });
+      return res.status(200).send(card);
     })
     .catch((err) => {
       const { status, message } = checkError(err);
