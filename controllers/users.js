@@ -19,6 +19,7 @@ const getUserById = (req, res) => {
       return res.status(200).send(user);
     })
     .catch((err) => {
+      console.log(err.name);
       const { status, message } = checkError(err);
       return res.status(status).send(message);
     });
@@ -42,9 +43,13 @@ const updateUser = (req, res) => {
   return User.findByIdAndUpdate(userId, newDataUser, {
     new: true, // обработчик then получит на вход обновлённую запись
     runValidators: true, // данные будут валидированы перед изменением
-    upsert: true, // если пользователь не найден, он будет создан
   })
-    .then((user) => res.status(200).send(user))
+    .then((user) => {
+      if (!user) {
+        throw new FindError();
+      }
+      res.status(200).send(user);
+    })
     .catch((err) => {
       const { status, message } = checkError(err);
       return res.status(status).send(message);
