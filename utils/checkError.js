@@ -14,18 +14,26 @@ const mapError = (err) => Object.values(err.errors)
   .join(', ');
 
 const checkError = (err) => {
-  const definiteErr = {
-    status: ERROR_CODE_DB,
-    message: { message: err.message },
-  };
-
-  if (err.name === 'ValidationError') {
-    definiteErr.status = ERROR_CODE_BADREQ;
-    definiteErr.message = { message: mapError(err) };
-    // если несколько полей не прошли валидацию, то нужно вывести все ошибки
+  const definiteErr = {};
+  switch (err.name) {
+    case 'ValidationError':
+      definiteErr.status = ERROR_CODE_BADREQ;
+      definiteErr.message = { message: mapError(err) };
+      // если несколько полей не прошли валидацию, то нужно вывести все ошибки
+      break;
+    case 'CastError':
+      definiteErr.status = ERROR_CODE_BADREQ;
+      definiteErr.message = { message: err.message };
+      break;
+    case 'FindError':
+      definiteErr.status = ERROR_CODE_NOTFOUND;
+      definiteErr.message = { message: err.message };
+      break;
+    default:
+      definiteErr.status = ERROR_CODE_DB;
+      definiteErr.message = { message: err.message };
+      break;
   }
-  if (err.name === 'CastError') definiteErr.status = ERROR_CODE_BADREQ;
-  if (err.name === 'FindError') definiteErr.status = ERROR_CODE_NOTFOUND;
   return definiteErr;
 };
 

@@ -2,7 +2,7 @@ const User = require('../models/user');
 const { checkError, FindError } = require('../utils/checkError');
 
 const getUsers = (req, res) => User.find({})
-  .then((user) => res.status(200).send(user))
+  .then((user) => res.send(user))
   .catch((err) => {
     const { status, message } = checkError(err);
     return res.status(status).send(message);
@@ -12,12 +12,8 @@ const getUserById = (req, res) => {
   const { userId } = req.params;
 
   return User.findById(userId)
-    .then((user) => {
-      if (!user) {
-        throw new FindError();
-      }
-      return res.status(200).send(user);
-    })
+    .orFail(new FindError())
+    .then((user) => res.send(user))
     .catch((err) => {
       const { status, message } = checkError(err);
       return res.status(status).send(message);
@@ -43,12 +39,8 @@ const updateUser = (req, res) => {
     new: true, // обработчик then получит на вход обновлённую запись
     runValidators: true, // данные будут валидированы перед изменением
   })
-    .then((user) => {
-      if (!user) {
-        throw new FindError();
-      }
-      res.status(200).send(user);
-    })
+    .orFail(new FindError())
+    .then((user) => res.send(user))
     .catch((err) => {
       const { status, message } = checkError(err);
       return res.status(status).send(message);
