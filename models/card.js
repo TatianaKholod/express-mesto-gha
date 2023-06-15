@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 
-const User = require('./user');
-
 const cardSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -21,12 +19,12 @@ const cardSchema = new mongoose.Schema({
   owner: {
     type: mongoose.SchemaTypes.ObjectId,
     required: [true, 'Поле "owner" должно быть заполнено'],
-    ref: User,
+    ref: 'user',
   },
   likes: [{
     type: mongoose.SchemaTypes.ObjectId,
     default: [],
-    ref: User,
+    ref: 'user',
   }],
   createdAt: {
     type: Date,

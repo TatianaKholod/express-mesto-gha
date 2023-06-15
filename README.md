@@ -15,4 +15,4 @@
 * создание контроллеров и роутов для http-запросов
 * олбработка ошибок (попробовала создать кастомную ошибку)
 
-[ссылка на репозиторий] https://github.com/TatianaKholod/express-mesto-gha
+[ссылка на репозиторий](https://github.com/TatianaKholod/express-mesto-gha)
