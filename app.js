@@ -1,6 +1,8 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const routes = require('./routes');
 
@@ -28,16 +30,17 @@ mongoose
     console.log(`Ощибка подключения к БД ${err.message}`);
   });
 
-// временно захардкодили авторизацию
+/* // временно захардкодили авторизацию
 app.use((req, res, next) => {
   req.user = {
     _id: '6485d8cecdcca7279b35193c',
   };
 
   next();
-});
+}); */
 
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 app.use(routes);
 

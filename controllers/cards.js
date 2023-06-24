@@ -1,7 +1,7 @@
 const Card = require('../models/card');
 const { checkError, FindError } = require('../utils/checkError');
 
-const getCards = (req, res) => Card.find({}).populate('owner').populate('likes')
+const getCards = (req, res) => Card.find({ owner: { _id: req.user._id } }).populate('owner').populate('likes')
   .then((card) => res.send(card))
   .catch((err) => {
     const { status, message } = checkError(err);
@@ -11,7 +11,7 @@ const getCards = (req, res) => Card.find({}).populate('owner').populate('likes')
 const delCardById = (req, res) => {
   const { cardId } = req.params;
 
-  return Card.findByIdAndRemove(cardId)
+  return Card.findByIdAndRemove(cardId).where({ owner: { _id: req.user._id } })
     .orFail(new FindError())
     .then((card) => res.send(card))
     .catch((err) => {
@@ -40,7 +40,7 @@ const likeCard = (req, res) => {
     cardId,
     { $addToSet: { likes: userId } }, // добавить _id в массив, если его там нет
     { new: true },
-  )
+  ).where({ owner: { _id: req.user._id } })
     .orFail(new FindError())
     .then((card) => res.send(card))
     .catch((err) => {
@@ -57,7 +57,7 @@ const dislikeCard = (req, res) => {
     cardId,
     { $pull: { likes: userId } }, // убрать _id из массива
     { new: true },
-  )
+  ).where({ owner: { _id: req.user._id } })
     .orFail(new FindError())
     .then((card) => res.send(card))
     .catch((err) => {

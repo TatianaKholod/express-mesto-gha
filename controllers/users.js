@@ -8,6 +8,8 @@ const getUsers = (req, res) => User.find({})
     return res.status(status).send(message);
   });
 
+const getProfile = (req, res) => res.redirect(`/users/${req.user._id}`);
+
 const getUserById = (req, res) => {
   const { userId } = req.params;
 
@@ -20,20 +22,13 @@ const getUserById = (req, res) => {
     });
 };
 
-const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-
-  return User.create({ name, about, avatar })
-    .then((user) => res.status(201).send(user))
-    .catch((err) => {
-      const { status, message } = checkError(err);
-      return res.status(status).send(message);
-    });
-};
-
-const updateUser = (req, res) => {
-  const newDataUser = req.body;
+const updateUser = (req, res, arrNeedfulKeys) => {
+  const newDataUser = {};
   const userId = req.user._id;
+
+  arrNeedfulKeys.forEach((key) => {
+    newDataUser[key] = req.body[key];
+  });
 
   return User.findByIdAndUpdate(userId, newDataUser, {
     new: true, // обработчик then получит на вход обновлённую запись
@@ -46,9 +41,19 @@ const updateUser = (req, res) => {
       return res.status(status).send(message);
     });
 };
+
+const updateAvatar = (req, res) => {
+  updateUser(req, res, ['avatar']);
+};
+
+const updateProfile = (req, res) => {
+  updateUser(req, res, ['name', 'about']);
+};
+
 module.exports = {
   getUsers,
   getUserById,
-  createUser,
-  updateUser,
+  updateProfile,
+  updateAvatar,
+  getProfile,
 };
