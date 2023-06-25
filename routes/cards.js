@@ -1,4 +1,6 @@
 const router = require('express').Router();
+const { celebrate } = require('celebrate');
+const { ShemaCard } = require('../utils/celebrate');
 const {
   getCards,
   delCardById,
@@ -7,7 +9,7 @@ const {
   dislikeCard,
 } = require('../controllers/cards');
 
-router.post('/', createCard);
+router.post('/', celebrate(ShemaCard), createCard);
 
 router.get('/', getCards);
 

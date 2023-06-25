@@ -1,28 +1,22 @@
 const User = require('../models/user');
-const { checkError, FindError } = require('../utils/checkError');
+const NotFoundError = require('../errors/not-found-error');
 
-const getUsers = (req, res) => User.find({})
+const getUsers = (req, res, next) => User.find({})
   .then((user) => res.send(user))
-  .catch((err) => {
-    const { status, message } = checkError(err);
-    return res.status(status).send(message);
-  });
+  .catch(next);
 
 const getProfile = (req, res) => res.redirect(`/users/${req.user._id}`);
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   const { userId } = req.params;
 
   return User.findById(userId)
-    .orFail(new FindError())
+    .orFail(new NotFoundError())
     .then((user) => res.send(user))
-    .catch((err) => {
-      const { status, message } = checkError(err);
-      return res.status(status).send(message);
-    });
+    .catch(next);
 };
 
-const updateUser = (req, res, arrNeedfulKeys) => {
+const updateUser = (req, res, arrNeedfulKeys, next) => {
   const newDataUser = {};
   const userId = req.user._id;
 
@@ -34,12 +28,9 @@ const updateUser = (req, res, arrNeedfulKeys) => {
     new: true, // обработчик then получит на вход обновлённую запись
     runValidators: true, // данные будут валидированы перед изменением
   })
-    .orFail(new FindError())
+    .orFail(new NotFoundError())
     .then((user) => res.send(user))
-    .catch((err) => {
-      const { status, message } = checkError(err);
-      return res.status(status).send(message);
-    });
+    .catch(next);
 };
 
 const updateAvatar = (req, res) => {

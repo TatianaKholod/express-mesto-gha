@@ -30,15 +30,6 @@ mongoose
     console.log(`Ощибка подключения к БД ${err.message}`);
   });
 
-/* // временно захардкодили авторизацию
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6485d8cecdcca7279b35193c',
-  };
-
-  next();
-}); */
-
 app.use(bodyParser.json());
 app.use(cookieParser());
 

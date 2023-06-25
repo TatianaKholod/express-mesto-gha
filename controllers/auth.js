@@ -1,20 +1,21 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
-const { checkError, FindError } = require('../utils/checkError');
+const UnauthorizedError = require('../errors/unauthorized-error');
+const ConflictError = require('../errors/conflict-error');
 const { generateToken } = require('../utils/jwt');
 
 const HASH_SALT = 10;
 const COOKIE_MAXAGE = 3600000 * 24 * 7;
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findOne({ email }).select('+password')
-    .orFail(new FindError()) // здесь нужна ошибка авторизации 401 TODO
+    .orFail(new UnauthorizedError('Неправильные почта или пароль'))
     .then((user) => bcrypt.compare(password, user.password)
       .then((matched) => {
         if (!matched) {
           // хеши не совпали — отклоняем промис
-          return Promise.reject(new Error('Неправильные почта или пароль')); // это 401 TODO
+          return Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
         }
         return user._id;
       }))
@@ -27,25 +28,21 @@ const login = (req, res) => {
       });
       return res.send({ _id: token });
     })
-    .catch((err) => {
-      const { status, message } = checkError(err);
-      return res.status(status).send(message);
-    });
+    .catch((err) => next(err));
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     password, email, name, about, avatar,
   } = req.body;
-  return bcrypt.hash(password, HASH_SALT)
+  return User.findOne({ email })
+    .then((user) => { if (user) { throw new ConflictError('email уже зарегистрирован'); } })
+    .then(() => bcrypt.hash(password, HASH_SALT))
     .then((hash) => User.create({
       password: hash, email, name, about, avatar,
     }))
     .then((user) => res.status(201).send(user))
-    .catch((err) => {
-      const { status, message } = checkError(err);
-      return res.status(status).send(message);
-    });
+    .catch(next);
 };
 
 module.exports = {

@@ -1,14 +1,5 @@
-const ERROR_CODE_BADREQ = 400;
-const ERROR_CODE_NOTFOUND = 404;
-const ERROR_CODE_DB = 500;
+const { ERROR_CODE_BADREQ, ERROR_CODE_DB } = require('../errors/code-errors');
 
-class FindError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'FindError';
-    this.message = 'Запрашиваемый объект не найден';
-  }
-}
 const mapError = (err) => Object.values(err.errors)
   .map((i) => i.message)
   .join(', ');
@@ -25,10 +16,6 @@ const checkError = (err) => {
       definiteErr.status = ERROR_CODE_BADREQ;
       definiteErr.message = { message: err.message };
       break;
-    case 'FindError':
-      definiteErr.status = ERROR_CODE_NOTFOUND;
-      definiteErr.message = { message: err.message };
-      break;
     default:
       definiteErr.status = ERROR_CODE_DB;
       definiteErr.message = { message: err.message };
@@ -37,7 +24,11 @@ const checkError = (err) => {
   return definiteErr;
 };
 
-module.exports = {
-  checkError,
-  FindError,
-};
+const handleError = ((err, req, res, next) => {
+  if (err.statusCode) { res.status(err.statusCode).send({ message: err.message }); }
+  const definiteErr = checkError(err);
+  res.status(definiteErr.status).send(definiteErr.message);
+  next();
+});
+
+module.exports = handleError;

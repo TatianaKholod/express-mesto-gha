@@ -1,38 +1,34 @@
 const Card = require('../models/card');
-const { checkError, FindError } = require('../utils/checkError');
+const NotFoundError = require('../errors/not-found-error');
+const ForbiddenError = require('../errors/Forbidden-error');
 
-const getCards = (req, res) => Card.find({ owner: { _id: req.user._id } }).populate('owner').populate('likes')
+const getCards = (req, res, next) => Card.find({}).populate('owner').populate('likes')
   .then((card) => res.send(card))
-  .catch((err) => {
-    const { status, message } = checkError(err);
-    return res.status(status).send(message);
-  });
+  .catch(next);
 
-const delCardById = (req, res) => {
+const delCardById = (req, res, next) => {
   const { cardId } = req.params;
 
-  return Card.findByIdAndRemove(cardId).where({ owner: { _id: req.user._id } })
-    .orFail(new FindError())
-    .then((card) => res.send(card))
-    .catch((err) => {
-      const { status, message } = checkError(err);
-      return res.status(status).send(message);
-    });
+  return Card.findById(cardId, 'owner')
+    .orFail(new NotFoundError())
+    .then((card) => {
+      if (card.owner._id.toString() !== req.user._id) { throw new ForbiddenError(); }
+    })
+    .then(() => Card.findByIdAndRemove(cardId)
+      .then((card) => res.send(card)))
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
   return Card.create({ name, link, owner })
     .then((card) => res.status(201).send(card))
-    .catch((err) => {
-      const { status, message } = checkError(err);
-      return res.status(status).send(message);
-    });
+    .catch(next);
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   const userId = req.user._id;
   const { cardId } = req.params;
 
@@ -40,16 +36,13 @@ const likeCard = (req, res) => {
     cardId,
     { $addToSet: { likes: userId } }, // добавить _id в массив, если его там нет
     { new: true },
-  ).where({ owner: { _id: req.user._id } })
-    .orFail(new FindError())
+  )
+    .orFail(new NotFoundError())
     .then((card) => res.send(card))
-    .catch((err) => {
-      const { status, message } = checkError(err);
-      return res.status(status).send(message);
-    });
+    .catch(next);
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   const userId = req.user._id;
   const { cardId } = req.params;
 
@@ -57,13 +50,10 @@ const dislikeCard = (req, res) => {
     cardId,
     { $pull: { likes: userId } }, // убрать _id из массива
     { new: true },
-  ).where({ owner: { _id: req.user._id } })
-    .orFail(new FindError())
+  )
+    .orFail(new NotFoundError())
     .then((card) => res.send(card))
-    .catch((err) => {
-      const { status, message } = checkError(err);
-      return res.status(status).send(message);
-    });
+    .catch(next);
 };
 
 module.exports = {
