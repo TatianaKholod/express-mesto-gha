@@ -41,7 +41,11 @@ const createUser = (req, res, next) => {
     .then((hash) => User.create({
       password: hash, email, name, about, avatar,
     }))
-    .then((user) => res.status(201).send(user))
+    .then((user) => {
+      const u = user.toJSON();
+      delete u.password;
+      res.status(201).send(u);
+    })
     .catch(next);
 };
 

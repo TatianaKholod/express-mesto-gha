@@ -8,7 +8,7 @@ const getUsers = (req, res, next) => User.find({})
 const getProfile = (req, res) => res.redirect(`/users/${req.user._id}`);
 
 const getUserById = (req, res, next) => {
-  const { userId } = req.params;
+  const { id: userId } = req.params;
 
   return User.findById(userId)
     .orFail(new NotFoundError())

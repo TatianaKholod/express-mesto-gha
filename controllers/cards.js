@@ -7,7 +7,7 @@ const getCards = (req, res, next) => Card.find({}).populate('owner').populate('l
   .catch(next);
 
 const delCardById = (req, res, next) => {
-  const { cardId } = req.params;
+  const { id: cardId } = req.params;
 
   return Card.findById(cardId, 'owner')
     .orFail(new NotFoundError())
@@ -30,7 +30,7 @@ const createCard = (req, res, next) => {
 
 const likeCard = (req, res, next) => {
   const userId = req.user._id;
-  const { cardId } = req.params;
+  const { id: cardId } = req.params;
 
   return Card.findByIdAndUpdate(
     cardId,
@@ -44,7 +44,7 @@ const likeCard = (req, res, next) => {
 
 const dislikeCard = (req, res, next) => {
   const userId = req.user._id;
-  const { cardId } = req.params;
+  const { id: cardId } = req.params;
 
   return Card.findByIdAndUpdate(
     cardId,

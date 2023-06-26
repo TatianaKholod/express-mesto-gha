@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { celebrate } = require('celebrate');
-const { ShemaUser } = require('../utils/celebrate');
+const { ShemaUser, ShemaId } = require('../utils/celebrate');
 const {
   getUsers,
   getUserById,
@@ -12,7 +12,7 @@ const {
 router.get('/', getUsers);
 
 router.get('/me', getProfile);
-router.get('/:userId', getUserById);
+router.get('/:id', celebrate(ShemaId), getUserById);
 
 router.patch('/me', celebrate(ShemaUser), updateProfile);
 router.patch('/me/avatar', celebrate(ShemaUser), updateAvatar);

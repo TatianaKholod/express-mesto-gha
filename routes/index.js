@@ -15,7 +15,7 @@ router.use('/', authMiddelware);
 router.use('/users', userRoutes);
 router.use('/cards', cardRoutes);
 
-router.use('/', (req, res, next) => { next(new NotFoundError('URL неверный')); });
+router.use('*', (req, res, next) => { next(new NotFoundError('URL неверный')); });
 
 router.use(errors());
 router.use(handleError);

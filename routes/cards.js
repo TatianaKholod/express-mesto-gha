@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { celebrate } = require('celebrate');
-const { ShemaCard } = require('../utils/celebrate');
+const { ShemaCard, ShemaId } = require('../utils/celebrate');
 const {
   getCards,
   delCardById,
@@ -13,10 +13,10 @@ router.post('/', celebrate(ShemaCard), createCard);
 
 router.get('/', getCards);
 
-router.delete('/:cardId', delCardById);
+router.delete('/:id', celebrate(ShemaId), delCardById);
 
-router.put('/:cardId/likes', likeCard);
+router.put('/:id/likes', celebrate(ShemaId), likeCard);
 
-router.delete('/:cardId/likes', dislikeCard);
+router.delete('/:id/likes', celebrate(ShemaId), dislikeCard);
 
 module.exports = router;
