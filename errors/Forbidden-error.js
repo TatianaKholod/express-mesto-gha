@@ -5,7 +5,6 @@ class ForbiddenError extends Error {
     super(message);
     this.name = 'ForbiddenError';
     this.statusCode = EROR_CODE_FORBIDDEN;
-    this.message = message || 'Нет доступа';
   }
 }
 

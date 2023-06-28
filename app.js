@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
 const routes = require('./routes');
@@ -30,7 +29,7 @@ mongoose
     console.log(`Ощибка подключения к БД ${err.message}`);
   });
 
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(cookieParser());
 
 app.use(routes);

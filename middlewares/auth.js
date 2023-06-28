@@ -1,19 +1,24 @@
-const router = require('express').Router();
 const UnauthorizedError = require('../errors/unauthorized-error');
 const { verifyToken } = require('../utils/jwt');
 
-router.use((req, res, next) => {
+const authMiddelware = ((req, res, next) => {
   const { token } = req.cookies;
-  if (!token) { throw new UnauthorizedError(); }
+  if (!token) { return next(new UnauthorizedError('Вы не авторозованы')); }
 
-  const id = verifyToken(token)._id;
+  if (!verifyToken(token)._id) { return next(new UnauthorizedError('Вы не авторозованы')); }
 
-  if (id) {
-    req.user = {
-      _id: id,
-    };
-  } else { throw new UnauthorizedError(); }
-  next();
+  try {
+    const id = verifyToken(token)._id;
+    if (id) {
+      req.user = {
+        _id: id,
+      };
+    } else { return next(new UnauthorizedError('Вы не авторозованы')); }
+  } catch (err) {
+    return next(new UnauthorizedError('Вы не авторозованы'));
+  }
+
+  return next();
 });
 
-module.exports = router;
+module.exports = authMiddelware;

@@ -5,7 +5,6 @@ class NotFoundError extends Error {
     super(message);
     this.name = 'NotFoundError';
     this.statusCode = ERROR_CODE_NOTFOUND;
-    this.message = message || 'Запрашиваемый объект не найден';
   }
 }
 

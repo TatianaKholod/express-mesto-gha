@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { celebrate } = require('celebrate');
-const { ShemaUser, ShemaId } = require('../utils/celebrate');
+const { ShemaProfile, ShemaAvatar, ShemaId } = require('../utils/celebrate');
 const {
   getUsers,
   getUserById,
@@ -14,7 +14,7 @@ router.get('/', getUsers);
 router.get('/me', getProfile);
 router.get('/:id', celebrate(ShemaId), getUserById);
 
-router.patch('/me', celebrate(ShemaUser), updateProfile);
-router.patch('/me/avatar', celebrate(ShemaUser), updateAvatar);
+router.patch('/me', celebrate(ShemaProfile), updateProfile);
+router.patch('/me/avatar', celebrate(ShemaAvatar), updateAvatar);
 
 module.exports = router;

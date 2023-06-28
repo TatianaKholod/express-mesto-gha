@@ -1,4 +1,5 @@
-const { ERROR_CODE_BADREQ, ERROR_CODE_DB } = require('../errors/code-errors');
+const mongoose = require('mongoose');
+const { ERROR_CODE_BADREQ, ERROR_CODE_DB, EROR_CODE_CONFLICT } = require('../errors/code-errors');
 
 const mapError = (err) => Object.values(err.errors)
   .map((i) => i.message)
@@ -6,14 +7,20 @@ const mapError = (err) => Object.values(err.errors)
 
 const checkError = (err) => {
   const definiteErr = {};
-  switch (err.name) {
-    case 'ValidationError':
+  switch (true) {
+    case (err instanceof mongoose.Error.ValidationError):
       definiteErr.status = ERROR_CODE_BADREQ;
-      definiteErr.message = { message: mapError(err) };
-      // если несколько полей не прошли валидацию, то нужно вывести все ошибки
+      if (err.errors) {
+        // если несколько полей не прошли валидацию, то нужно вывести все ошибки
+        definiteErr.message = { message: mapError(err) };
+      } else definiteErr.message = { message: err.message };
       break;
-    case 'CastError':
+    case (err instanceof mongoose.Error.CastError):
       definiteErr.status = ERROR_CODE_BADREQ;
+      definiteErr.message = { message: err.message };
+      break;
+    case (err.code === 11000):
+      definiteErr.status = EROR_CODE_CONFLICT;
       definiteErr.message = { message: err.message };
       break;
     default:
@@ -25,9 +32,10 @@ const checkError = (err) => {
 };
 
 const handleError = ((err, req, res, next) => {
-  if (err.statusCode) { res.status(err.statusCode).send({ message: err.message }); }
-  const definiteErr = checkError(err);
-  res.status(definiteErr.status).send(definiteErr.message);
+  if (err.statusCode) { res.status(err.statusCode).send({ message: err.message }); } else {
+    const definiteErr = checkError(err);
+    res.status(definiteErr.status).send(definiteErr.message);
+  }
   next();
 });
 

@@ -5,7 +5,6 @@ class UnauthorizedError extends Error {
     super(message);
     this.name = 'UnauthorizedError';
     this.statusCode = ERROR_CODE_UNAUTH;
-    this.message = message || 'Не авторизованы';
   }
 }
 

@@ -5,15 +5,15 @@ const url = /^(https?:\/\/)?([\w\W\.]+)\.([a-z]{2,6}\.?)(\/[\w\W\.]*)*\/?$/i;
 
 const ShemaId = {
   params: Joi.object().keys({
-    id: Joi.string().required().length(24),
-  }).unknown(),
+    id: Joi.string().required().hex().length(24),
+  }),
 };
 
 const ShemaCard = {
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     link: Joi.string().required().pattern(url),
-  }).unknown(),
+  }),
 };
 const ShemaLogin = {
   body: Joi.object().keys({
@@ -22,15 +22,20 @@ const ShemaLogin = {
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(url),
-  }).unknown(),
+  }),
 };
-const ShemaUser = {
+const ShemaProfile = {
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(url),
-  }).unknown(),
+    name: Joi.string().required().min(2).max(30),
+    about: Joi.string().required().min(2).max(30),
+  }),
 };
+const ShemaAvatar = {
+  body: Joi.object().keys({
+    avatar: Joi.string().required().pattern(url),
+  }),
+};
+
 module.exports = {
-  ShemaCard, ShemaLogin, ShemaUser, ShemaId,
+  ShemaCard, ShemaLogin, ShemaProfile, ShemaId, ShemaAvatar,
 };

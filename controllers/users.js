@@ -11,7 +11,7 @@ const getUserById = (req, res, next) => {
   const { id: userId } = req.params;
 
   return User.findById(userId)
-    .orFail(new NotFoundError())
+    .orFail(new NotFoundError('Объект не найден'))
     .then((user) => res.send(user))
     .catch(next);
 };
@@ -28,17 +28,17 @@ const updateUser = (req, res, arrNeedfulKeys, next) => {
     new: true, // обработчик then получит на вход обновлённую запись
     runValidators: true, // данные будут валидированы перед изменением
   })
-    .orFail(new NotFoundError())
+    .orFail(new NotFoundError('Объект не найден'))
     .then((user) => res.send(user))
     .catch(next);
 };
 
-const updateAvatar = (req, res) => {
-  updateUser(req, res, ['avatar']);
+const updateAvatar = (req, res, next) => {
+  updateUser(req, res, ['avatar'], next);
 };
 
-const updateProfile = (req, res) => {
-  updateUser(req, res, ['name', 'about']);
+const updateProfile = (req, res, next) => {
+  updateUser(req, res, ['name', 'about'], next);
 };
 
 module.exports = {

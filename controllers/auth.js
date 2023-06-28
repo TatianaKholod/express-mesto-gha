@@ -1,11 +1,10 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const UnauthorizedError = require('../errors/unauthorized-error');
-const ConflictError = require('../errors/conflict-error');
 const { generateToken } = require('../utils/jwt');
 
-const HASH_SALT = 10;
-const COOKIE_MAXAGE = 3600000 * 24 * 7;
+const { HASH_SALT = 10 } = process.env;
+const { COOKIE_MAXAGE = 3600000 * 24 * 7 } = process.env;
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
@@ -23,7 +22,7 @@ const login = (req, res, next) => {
       const token = generateToken(id);
       // JWT в httpOnly куку
       res.cookie('token', token, {
-        maxAge: COOKIE_MAXAGE,
+        maxAge: +COOKIE_MAXAGE,
         httpOnly: true,
       });
       return res.send({ _id: token });
@@ -35,9 +34,7 @@ const createUser = (req, res, next) => {
   const {
     password, email, name, about, avatar,
   } = req.body;
-  return User.findOne({ email })
-    .then((user) => { if (user) { throw new ConflictError('email уже зарегистрирован'); } })
-    .then(() => bcrypt.hash(password, HASH_SALT))
+  return bcrypt.hash(password, +HASH_SALT)
     .then((hash) => User.create({
       password: hash, email, name, about, avatar,
     }))

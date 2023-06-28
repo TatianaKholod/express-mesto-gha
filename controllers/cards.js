@@ -10,12 +10,14 @@ const delCardById = (req, res, next) => {
   const { id: cardId } = req.params;
 
   return Card.findById(cardId, 'owner')
-    .orFail(new NotFoundError())
+    .orFail(new NotFoundError('Объект не найден'))
     .then((card) => {
-      if (card.owner._id.toString() !== req.user._id) { throw new ForbiddenError(); }
+      if (card.owner._id.toString() !== req.user._id) {
+        return Promise.reject(new ForbiddenError('Объект не доступен'));
+      }
+      return Card.findByIdAndRemove(cardId);
     })
-    .then(() => Card.findByIdAndRemove(cardId)
-      .then((card) => res.send(card)))
+    .then((card) => res.send(card))
     .catch(next);
 };
 
@@ -28,32 +30,25 @@ const createCard = (req, res, next) => {
     .catch(next);
 };
 
-const likeCard = (req, res, next) => {
+const toggleCard = (req, res, toggleKey, next) => {
   const userId = req.user._id;
   const { id: cardId } = req.params;
-
   return Card.findByIdAndUpdate(
     cardId,
-    { $addToSet: { likes: userId } }, // добавить _id в массив, если его там нет
+    { [toggleKey]: { likes: userId } },
     { new: true },
   )
-    .orFail(new NotFoundError())
+    .orFail(new NotFoundError('Объект не найден'))
     .then((card) => res.send(card))
     .catch(next);
 };
 
-const dislikeCard = (req, res, next) => {
-  const userId = req.user._id;
-  const { id: cardId } = req.params;
+const likeCard = (req, res, next) => {
+  toggleCard(req, res, '$addToSet', next);
+};
 
-  return Card.findByIdAndUpdate(
-    cardId,
-    { $pull: { likes: userId } }, // убрать _id из массива
-    { new: true },
-  )
-    .orFail(new NotFoundError())
-    .then((card) => res.send(card))
-    .catch(next);
+const dislikeCard = (req, res, next) => {
+  toggleCard(req, res, '$pull', next);
 };
 
 module.exports = {
