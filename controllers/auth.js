@@ -20,12 +20,12 @@ const login = (req, res, next) => {
       }))
     .then((id) => {
       const token = generateToken(id);
-      // JWT в httpOnly куку
+      // токен сохранили в httpOnly куку
       res.cookie('token', token, {
         maxAge: +COOKIE_MAXAGE,
         httpOnly: true,
       });
-      return res.send({ _id: token });
+      return res.send({ message: 'Приветствую!' });
     })
     .catch((err) => next(err));
 };

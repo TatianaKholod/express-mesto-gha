@@ -8,16 +8,18 @@ const getCards = (req, res, next) => Card.find({}).populate('owner').populate('l
 
 const delCardById = (req, res, next) => {
   const { id: cardId } = req.params;
+  let cardDel = {};
 
-  return Card.findById(cardId, 'owner')
+  return Card.findById(cardId)
     .orFail(new NotFoundError('Объект не найден'))
     .then((card) => {
       if (card.owner._id.toString() !== req.user._id) {
         return Promise.reject(new ForbiddenError('Объект не доступен'));
       }
-      return Card.findByIdAndRemove(cardId);
+      cardDel = card.toJSON();
+      return Card.deleteOne({ _id: cardId });
     })
-    .then((card) => res.send(card))
+    .then(() => res.send(cardDel))
     .catch(next);
 };
 

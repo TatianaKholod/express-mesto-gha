@@ -3,17 +3,12 @@ const { verifyToken } = require('../utils/jwt');
 
 const authMiddelware = ((req, res, next) => {
   const { token } = req.cookies;
-  if (!token) { return next(new UnauthorizedError('Вы не авторозованы')); }
 
-  if (!verifyToken(token)._id) { return next(new UnauthorizedError('Вы не авторозованы')); }
+  if (!token) { return next(new UnauthorizedError('Вы не авторозованы')); }
 
   try {
     const id = verifyToken(token)._id;
-    if (id) {
-      req.user = {
-        _id: id,
-      };
-    } else { return next(new UnauthorizedError('Вы не авторозованы')); }
+    req.user = { _id: id };
   } catch (err) {
     return next(new UnauthorizedError('Вы не авторозованы'));
   }
